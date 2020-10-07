@@ -1,2 +1,2 @@
-# scripts_oficina_tecnica_de_proyectos
+# Some scripts I use from day to day
 
