@@ -40,22 +40,20 @@ def addICtails(reposPath):
 
 def createIcProjectBranches(projectIC, args):
     # en IC
-    createProjectBranch(projectIC, 'master', 'hotfix', args)
-    createProjectBranch(projectIC, 'master', 'integracion', args)
+    # createProjectBranch(projectIC, 'master', 'hotfix', args)
     createProjectBranch(projectIC, 'master', 'release-candidate', args)
+    createProjectBranch(projectIC, 'release-candidate', 'integracion', args)
 
-    protectBranch(projectIC, 'hotfix', args)
-    protectBranch(projectIC, 'integracion', args)
     protectBranch(projectIC, 'release-candidate', args)
+    protectBranch(projectIC, 'integracion', args)
 
 def createProjectBranches(project, args):
     # en fork
-    createProjectBranch(project, 'master', 'developer', args)
-    createProjectBranch(project, 'master', 'developer-hotfix', args)
+    createProjectBranch(project, 'integracion', 'developer', args)
+    createProjectBranch(project, 'integracion', 'developer-hotfix', args)
 
-    protectBranch(project, 'hotfix', args)
-    protectBranch(project, 'integracion', args)
     protectBranch(project, 'release-candidate', args)
+    protectBranch(project, 'integracion', args)
     protectBranch(project, 'developer', args)
     protectBranch(project, 'developer-hotfix', args)
 
