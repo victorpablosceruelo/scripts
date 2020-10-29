@@ -355,7 +355,7 @@ def doProjectFork(project, group, args):
         logger.info('Not doing fork: found {0} ({1}) in group {2}'.format(projectName, project['path_with_namespace'], group['id']))
         return project
 
-    logger.warn('Creating repository {0} in group with id {1} ({2})'.format(projectName, group['id'], group['full_path']))
+    logger.warn('Creating repository fork {0} in group with id {1} ({2})'.format(projectName, group['id'], group['full_path']))
 
     
     # POST /projects/:id/fork
@@ -373,25 +373,28 @@ def doProjectFork(project, group, args):
     queryResponseJson = json.loads(queryResponse.text)
     logger.debug(pformat(queryResponseJson))
 
+    logger.info('Created repository fork {0} in group with id {1} ({2})'.format(projectName, group['id'], group['full_path']))
+
     return dict(queryResponseJson)
 
 def getBranches(project, args):
 
     projectId = project['id']
 
-    # GET /projects/:id/repository/branches
+    logger.info('Getting repository branches. Repo: {1} '.format(projectId))
 
+    # GET /projects/:id/repository/branches
     queryUrl=args.gitlabServer + '/api/v4/projects/{0}/repository/branches'.format(projectId)
-    queryParams={   "id":"{0}".format(projectId)    }
+    # queryParams={   "id":"{0}".format(projectId)    }
 
     logger.debug(pformat(queryParams))
-    queryResponse = requests.get(queryUrl, verify=False, params=queryParams,
+    queryResponse = requests.get(queryUrl, verify=False, 
                                             headers=args.gitlabQueryHeaders)
     
     checkGitLabQueryAnswer(queryResponse, validCodes=[requests.codes.ok, requests.codes.created])
 
     queryResponseJson = json.loads(queryResponse.text)
-    logger.debug(pformat(queryResponseJson))
+    logger.info(pformat(queryResponseJson))
 
     return queryResponseJson
 
