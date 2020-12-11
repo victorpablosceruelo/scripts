@@ -6,10 +6,22 @@ echo " "
 git branch -r | grep -v '\->' | while read remote; do git branch --track "${remote#origin/}" "$remote"; done
 echo " "
 
-git fetch --all
-git pull --all
+PREVIOUS_BRANCH=$(git branch | grep "* " | sed  "s/\* //g" )
 
-echo "Done. Results: " 
+git branch | while read CURRENT_BRANCH; do
+	CURRENT_BRANCH=$(echo "${CURRENT_BRANCH}" | sed  "s/\* //g" )
+	echo " "
+	echo "${CURRENT_BRANCH}"
+	git checkout ${CURRENT_BRANCH}
+	git fetch --all
+	git pull --all
+	git pull --tags
+done
+
+git checkout ${PREVIOUS_BRANCH}
+
+echo "Done. Results: "
+
 echo " "
 git branch
 echo " "
