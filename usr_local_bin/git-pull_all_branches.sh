@@ -7,6 +7,7 @@ git branch -r | grep -v '\->' | while read remote; do git branch --track "${remo
 echo " "
 
 PREVIOUS_BRANCH=$(git branch | grep "* " | sed  "s/\* //g" )
+echo "Current branch: ${PREVIOUS_BRANCH}"
 
 git branch | while read CURRENT_BRANCH; do
 	CURRENT_BRANCH=$(echo "${CURRENT_BRANCH}" | sed  "s/\* //g" )
