@@ -6,10 +6,31 @@ TMP_LOGS="/tmp/logs_${ME}"
 # From https://stackoverflow.com/questions/10312521/how-to-fetch-all-git-branches
 
 echo " "
+ALL_ORIGINS=$(grep "\[\s*remote\s*.*" .git/config | sed 's/\[\s*remote\s*"//g' | sed 's/"\s*\]//g')
+echo " "
+
+retVal=0
+while read -r CURRENT_ORIGIN; do
+
+	echo "git fetch -p ${CURRENT_ORIGIN}"
+	git fetch -p ${CURRENT_ORIGIN}
+	retVal=$?
+
+done <<< ${ALL_ORIGINS}
+# echo " "
+
+if [ 0 -ne ${retVal} ]; then
+	echo " "
+	grep '\(\[\s*remote\s*"\|\s*url\s*=\s*\)' .git/config
+fi
+
+echo " "
+echo "- Tracking all remote repositories branches... "
 git branch -r | grep -v '\->' | while read remote; do git branch --track "${remote#origin/}" "$remote"; done
 echo " "
 
-git fetch -p
+echo "- Compressing and pruning... "
+# git fetch -p
 git gc --prune=now
 
 git branch
@@ -21,15 +42,18 @@ ALL_BRANCHES="$(git branch)"
 while read -r CURRENT_BRANCH; do
 	CURRENT_BRANCH=$(echo "${CURRENT_BRANCH}" | sed  "s/\* //g" )
 	echo " "
-	echo "${CURRENT_BRANCH}"
+	echo "Updating branch ${CURRENT_BRANCH}"
 	
 	UPDATE_FROM_REMOTE=$(echo "${ALL_REMOTE_BRANCHES}" | grep -e "${CURRENT_BRANCH}")
 	RETVAL=$?
 	if [ 0 -eq ${RETVAL} ]; then
 		rm -fv ${TMP_LOGS} 
 		git checkout ${CURRENT_BRANCH} 2>&1 >> ${TMP_LOGS}
+		echo "git fetch --all ... "
 		git fetch --all 2>&1 >> ${TMP_LOGS}
+		echo "git pull --all ... "
 		git pull --all 2>&1 >> ${TMP_LOGS}
+		echo "git pull --tags ... "
 		git pull --tags 2>&1 >> ${TMP_LOGS}
 		cat ${TMP_LOGS}
 
@@ -42,10 +66,8 @@ while read -r CURRENT_BRANCH; do
 	fi
 done <<< ${ALL_BRANCHES}
 
+echo "- Back to the branch we were working on... "
 git checkout ${PREVIOUS_BRANCH}
-
-echo "Done. Results: "
-
 echo " "
 git branch
 echo " "
