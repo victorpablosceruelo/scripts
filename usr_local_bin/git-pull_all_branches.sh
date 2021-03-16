@@ -66,6 +66,38 @@ while read -r CURRENT_BRANCH; do
 	fi
 done <<< ${ALL_BRANCHES}
 
+echo " "
+echo "- Local tags removal if needed: "
+REMOTE_TAGS=$(git ls-remote --tags origin | sed 's/\s\+/ /g' | cut -d " " -f 2 )
+LOCAL_TAGS=$(git tag)
+
+echo -n "Local  tags: "
+while read -r LOCAL_TAG; do echo -n "${LOCAL_TAG} "; done <<< ${LOCAL_TAGS}
+echo " "
+
+echo -n "Remote tags: "
+while read -r REMOTE_TAG; do echo -n "${REMOTE_TAG} "; done <<< ${REMOTE_TAGS}
+echo " "
+
+while read -r LOCAL_TAG; do
+    remove_tag="true"
+    while read -r REMOTE_TAG; do
+	echo "${REMOTE_TAG}" | grep -q "refs/tags/${LOCAL_TAG}"
+	grep_result=$?
+	
+	if [ 0 -eq ${grep_result} ]; then
+	    echo "Tag ${LOCAL_TAG} found in remote: ${REMOTE_TAG}"
+	    remove_tag="false"
+	fi
+    done <<< ${REMOTE_TAGS}
+    
+    if [ "true" == "${remove_tag}" ]; then
+	echo "Removing local tag: ${LOCAL_TAG}"
+	git tag -d ${LOCAL_TAG}
+    fi
+done <<< ${LOCAL_TAGS}
+
+echo " "
 echo "- Back to the branch we were working on... "
 git checkout ${PREVIOUS_BRANCH}
 echo " "
