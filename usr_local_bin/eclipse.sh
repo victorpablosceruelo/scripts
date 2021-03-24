@@ -2,11 +2,38 @@
 
 echo "Running eclipse ... "
 
-IS_RUNNING=$(ps -AfH | grep "eclipse " | grep -v grep)
-if [ ! -z "${IS_RUNNING}" ] && [ "" != "${IS_RUNNING}" ]; then
-	echo "It is still running. Kill it! "
-	killall -9 eclipse
-fi
+isAppDown() {
+        RES=$(ps -AfH | grep "${1}" | grep -v grep | grep -v ${2} )
+        if [ -z "${RES}" ] || [ "" == "${RES}" ]; then
+                return 0
+        fi
+        return 1
+}
+
+getAppPid() {
+	ps -AfH | grep ${1} | grep -v ${2} | sed 's/\s\+/ /g' | cut -d ' ' -f 2
+}
+
+killApp() {
+
+	APP="$1"
+	FILTER="${2}"
+
+	while ! isAppDown ${APP} ${FILTER}
+	do
+		PID=$(getAppPid ${APP} ${FILTER} )
+		echo "Trying to stop or kill ${APP} (pid: ${PID}) ..."
+		kill -s SIGKILL ${PID}
+		if isAppDown ${APP}; then continue; fi
+		killall -s SIGABRT ${PID}
+		if isAppDown ${APP}; then continue; fi
+		killall -s SIGILL ${PID}
+		if isAppDown ${APP}; then continue; fi
+		kill -9 ${PID}
+	done
+}
+
+killApp "eclipse" "eclipse.sh"
 
 # nc -zv 127.0.0.1 3128
 # if [ 0 -eq $? ]; then
