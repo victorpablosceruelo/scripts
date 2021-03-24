@@ -33,9 +33,20 @@ echo "- Compressing and pruning... "
 # git fetch -p
 git gc --prune=now
 
-git branch
+rm -fv ${TMP_LOGS}
+git branch | tee -a ${TMP_LOGS}
 PREVIOUS_BRANCH=$(git branch | grep "* " | sed  "s/\* //g" )
 echo "Current branch: ${PREVIOUS_BRANCH}"
+
+rm -fv ${TMP_LOGS}
+echo "git fetch --all ... "
+git fetch --all 2>&1 >> ${TMP_LOGS}
+cat ${TMP_LOGS}
+
+rm -fv ${TMP_LOGS}
+echo "git pull --all ... "
+git pull --all 2>&1 >> ${TMP_LOGS}
+cat ${TMP_LOGS}
 
 ALL_REMOTE_BRANCHES="$(git branch -r)"
 ALL_BRANCHES="$(git branch)"
@@ -49,10 +60,12 @@ while read -r CURRENT_BRANCH; do
 	if [ 0 -eq ${RETVAL} ]; then
 		rm -fv ${TMP_LOGS} 
 		git checkout ${CURRENT_BRANCH} 2>&1 >> ${TMP_LOGS}
-		echo "git fetch --all ... "
-		git fetch --all 2>&1 >> ${TMP_LOGS}
-		echo "git pull --all ... "
-		git pull --all 2>&1 >> ${TMP_LOGS}
+		# echo "git fetch --all ... "
+		# git fetch --all 2>&1 >> ${TMP_LOGS}
+		# echo "git pull --all ... "
+		# git pull --all 2>&1 >> ${TMP_LOGS}
+		echo "git pull (current branch) ... "
+		git pull
 		echo "git pull --tags ... "
 		git pull --tags 2>&1 >> ${TMP_LOGS}
 		cat ${TMP_LOGS}
@@ -101,6 +114,7 @@ echo " "
 echo "- Back to the branch we were working on... "
 git checkout ${PREVIOUS_BRANCH}
 echo " "
-git branch
+rm -fv ${TMP_LOGS}
+git branch | tee -a ${TMP_LOGS} 
 echo " "
 
