@@ -56,11 +56,12 @@ fi
 # -Dhttp.proxyUser=<user>
 # -Dhttp.proxyPassword=<pass>
 # -Dhttp.nonProxyHosts=localhost|127.0.0.1
-ECLIPSE_OPTS="-Djava.net.preferIPv4Stack=true "
+ECLIPSE_OPTS="-nosplash -clean -refresh -Djava.net.preferIPv4Stack=true "
 
-echo "${ECLIPSE_PATH} -clean -refresh ${ECLIPSE_OPTS} &> /tmp/eclipse.log"
+echo "${ECLIPSE_PATH} ${ECLIPSE_OPTS} &> /tmp/eclipse.log"
 
 # socks_proxy=127.0.0.1:3128 
 # http_proxy=${PROXY_IP}:${PROXY_PORT} https_proxy=${PROXY_IP}:${PROXY_PORT} 
-${ECLIPSE_PATH} -clean -refresh ${ECLIPSE_OPTS} &> /tmp/eclipse.log 
+${ECLIPSE_PATH} ${ECLIPSE_OPTS} &> /tmp/eclipse.log 
 
+echo " "
