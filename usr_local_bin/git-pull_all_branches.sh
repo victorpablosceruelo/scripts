@@ -127,6 +127,18 @@ done <<< ${LOCAL_TAGS}
 echo "Tags ok: ${TAGS_LINKED}" 2>&1 >> ${TMP_LOGS}
 echo " " 2>&1 >> ${TMP_LOGS}
 echo " "
+
+echo " "
+echo "- Local branches not tracked in remote repositories branches... " 2>&1 | tee -a ${TMP_LOGS}
+git branch | sed 's@^\ *\**\ *@@g' | while read branchName; do
+    branchExists=$(git branch -r | sed 's@^\ *\**\ *@@g' | grep -i "$branchName")
+    if [ -z "${branchExists}" ] || [ "" == "${branchExists}" ]; then
+	echo "WARN: Branch exists only locally: ${branchName}"
+    fi
+done
+echo " "
+
+
 echo "- Back to the branch we were working on...( ${PREVIOUS_BRANCH} ) "
 git checkout ${PREVIOUS_BRANCH}
 echo " "
